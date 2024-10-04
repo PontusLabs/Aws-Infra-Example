@@ -1,0 +1,10 @@
+name: PulumiInfra
+runtime:
+  name: nodejs
+  options:
+    packagemanager: npm
+description: Pontus Infra
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-typescript
