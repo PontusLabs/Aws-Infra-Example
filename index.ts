@@ -18,7 +18,7 @@ const awsProvider = new aws.Provider("aws-provider", {
 });
 
 // VPC configuration
-const { vpc, internalSg, lbSg, vpcEndpoints } = createNetworking();
+const { vpc, internalSg, lbSg, vpcEndpoints } = createNetworking(cfg);
 
 // Database configuration
 const { dbInstance, rabbitMqBroker, redisCluster } = createDatabase(project, stack, cfg, vpc, internalSg);
