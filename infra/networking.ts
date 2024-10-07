@@ -1,7 +1,8 @@
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
+import * as pulumi from "@pulumi/pulumi";
 
-export function createNetworking() {
+export function createNetworking(cfg: pulumi.Config) {
     const vpc = new awsx.ec2.Vpc("main-vpc", {
         cidrBlock: "10.0.0.0/16",
         numberOfAvailabilityZones: 2,
@@ -44,11 +45,13 @@ export function createNetworking() {
         tags: { Name: "allow-internal-and-outbound" },
     });
 
+    const region = cfg.require("AWS_REGION");
+
     // VPC Endpoints
     const vpcEndpoints = [
         new aws.ec2.VpcEndpoint("ssm-endpoint", {
             vpcId: vpc.vpcId,
-            serviceName: "com.amazonaws.us-east-2.ssm",
+            serviceName: `com.amazonaws.${region}.ssm`,
             vpcEndpointType: "Interface",
             privateDnsEnabled: true,
             subnetIds: vpc.privateSubnetIds,
@@ -56,7 +59,7 @@ export function createNetworking() {
         }),
         new aws.ec2.VpcEndpoint("ssmmessages-endpoint", {
             vpcId: vpc.vpcId,
-            serviceName: "com.amazonaws.us-east-2.ssmmessages",
+            serviceName: `com.amazonaws.${region}.ssmmessages`,
             vpcEndpointType: "Interface",
             privateDnsEnabled: true,
             subnetIds: vpc.privateSubnetIds,
@@ -64,7 +67,7 @@ export function createNetworking() {
         }),
         new aws.ec2.VpcEndpoint("ec2messages-endpoint", {
             vpcId: vpc.vpcId,
-            serviceName: "com.amazonaws.us-east-2.ec2messages",
+            serviceName: `com.amazonaws.${region}.ec2messages`,
             vpcEndpointType: "Interface",
             privateDnsEnabled: true,
             subnetIds: vpc.privateSubnetIds,

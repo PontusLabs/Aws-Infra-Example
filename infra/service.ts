@@ -25,6 +25,7 @@ export function createService(
             redisCluster.cacheNodes[0].port,
         ])
         .apply(([dbEndpoint, dbPort, rabbitMqEndpoint, redisHost, redisPort]) => JSON.stringify({
+            AES_KEY: cfg.require("AES_KEY"),
             JWT_SECRET_KEY: cfg.require("JWT_SECRET_KEY"),
             DATABASE_HOST: getConnectionDetails(dbEndpoint, "postgres").host,
             DATABASE_PORT: getConnectionDetails(dbEndpoint, "postgres").port,
@@ -197,6 +198,7 @@ export function createService(
                         { containerPort: 80, targetGroup: loadbalancer.defaultTargetGroup },
                     ],
                     environment: [
+                        { name: "AWS_REGION", value: cfg.require("AWS_REGION") },
                         { name: "TEST_VARIABLE", value: "Hello from ECS" },
                         { name: "BASE_URL", value: `https://api.${domain}` },
                     ],
