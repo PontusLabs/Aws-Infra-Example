@@ -48,6 +48,22 @@ export function createNetworking(cfg: pulumi.Config) {
     const region = cfg.require("AWS_REGION");
 
     // VPC Endpoints
+    const bedrockEndpointPolicy = {
+        Version: "2012-10-17",
+        Statement: [
+            {
+                Sid: "AllowBedrockAccess",
+                Effect: "Allow",
+                Principal: "*",
+                Action: [
+                    "bedrock:InvokeModel",
+                    "bedrock:InvokeModelWithResponseStream"
+                ],
+                Resource: "arn:aws:bedrock:*:*:model/meta-llama/*"
+            }
+        ]
+    };
+
     const vpcEndpoints = [
         new aws.ec2.VpcEndpoint("ssm-endpoint", {
             vpcId: vpc.vpcId,
@@ -72,6 +88,15 @@ export function createNetworking(cfg: pulumi.Config) {
             privateDnsEnabled: true,
             subnetIds: vpc.privateSubnetIds,
             securityGroupIds: [internalSg.id],
+        }),
+        new aws.ec2.VpcEndpoint("bedrock-endpoint", {
+            vpcId: vpc.vpcId,
+            serviceName: `com.amazonaws.${region}.bedrock-runtime`,
+            vpcEndpointType: "Interface",
+            privateDnsEnabled: true,
+            subnetIds: vpc.privateSubnetIds,
+            securityGroupIds: [internalSg.id],
+            policy: JSON.stringify(bedrockEndpointPolicy),
         }),
     ];
     return { vpc, internalSg, lbSg, vpcEndpoints };

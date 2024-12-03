@@ -144,6 +144,14 @@ export function createService(
                     ],
                     Resource: appSecrets.arn,
                 },
+                {
+                    Effect: "Allow",
+                    Action: [
+                        "bedrock:InvokeModel",
+                        "bedrock:InvokeModelWithResponseStream"
+                    ],
+                    Resource: "arn:aws:bedrock:*:*:model/meta-llama/*"
+                },
             ],
         },
     });
