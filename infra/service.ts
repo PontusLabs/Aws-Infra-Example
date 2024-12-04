@@ -207,7 +207,7 @@ export function createService(
                     ],
                     environment: [
                         { name: "AWS_REGION", value: cfg.require("AWS_REGION") },
-                        { name: "TEST_VARIABLE", value: "Hello from ECS" },
+                        { name: "STACK", value: stack },
                         { name: "BASE_URL", value: `https://api.${domain}` },
                     ],
                 },
