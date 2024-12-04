@@ -2,4 +2,5 @@
 /node_modules/
 .env
 Pulumi.dev.yaml
+Pulumi.prod.yaml
 sessionmanager-bundle
