@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Read the Pulumi config passphrase from .env
-PULUMI_CONFIG_PASSPHRASE=$(grep '^PULUMI_CONFIG_PASSPHRASE=' .env | cut -d '=' -f2)
+PULUMI_CONFIG_PASSPHRASE=$(grep '^PULUMI_CONFIG_PASSPHRASE=' .env | cut -d '=' -f2 | sed 's/^"//;s/"$//')
 
 if [ -z "$PULUMI_CONFIG_PASSPHRASE" ]; then
     echo "Error: PULUMI_CONFIG_PASSPHRASE not found in .env file"
@@ -11,19 +11,27 @@ fi
 # Export the passphrase for Pulumi to use
 export PULUMI_CONFIG_PASSPHRASE
 
-# Read .env file and set Pulumi config secrets
-while IFS='=' read -r key value
+# First, read the entire file into a variable, preserving newlines
+content=$(cat .env)
+
+# Process each line
+echo "$content" | while IFS= read -r line
 do
-    # Remove any leading/trailing whitespace from key and value
-    key=$(echo $key | xargs)
-    value=$(echo $value | xargs)
+    # Skip empty lines and comments
+    [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
     
-    # Skip empty lines, comments, and the PULUMI_CONFIG_PASSPHRASE
-    if [[ ! -z "$key" && ! "$key" =~ ^# && "$key" != "PULUMI_CONFIG_PASSPHRASE" ]]; then
-        # Set the Pulumi config secret
+    # Extract key and value
+    key=$(echo "$line" | cut -d'=' -f1 | xargs)
+    value=$(echo "$line" | cut -d'=' -f2- | sed 's/^"//;s/"$//' | tr -d '\r\n' | xargs)
+    
+    if [[ ! -z "$key" && "$key" != "PULUMI_CONFIG_PASSPHRASE" ]]; then
         pulumi config set --secret "$key" "$value"
-        echo "Set secret for $key"
+        if [ $? -ne 0 ]; then
+            echo "Failed to set Pulumi config for $key"
+            exit 1
+        fi
+        echo "Successfully set Pulumi config for $key"
     fi
-done < .env
+done
 
 echo "All secrets from .env have been set in Pulumi config."

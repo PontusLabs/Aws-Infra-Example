@@ -3,4 +3,5 @@
 .env
 Pulumi.dev.yaml
 Pulumi.prod.yaml
+Pulumi.stackvcdev.yaml
 sessionmanager-bundle

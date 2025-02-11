@@ -59,7 +59,7 @@ export function createNetworking(cfg: pulumi.Config) {
                     "bedrock:InvokeModel",
                     "bedrock:InvokeModelWithResponseStream"
                 ],
-                Resource: "arn:aws:bedrock:*:*:model/meta-llama/*"
+                Resource: "arn:aws:bedrock:*:*:model/*"
             }
         ]
     };
