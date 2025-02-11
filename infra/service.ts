@@ -92,7 +92,7 @@ export function createService(
             {
                 port: 443,
                 protocol: "HTTPS",
-                certificateArn: apiCert.arn,
+                certificateArn: certificateValidation.certificateArn,
             },
         ],
         defaultTargetGroup: {
@@ -115,6 +115,17 @@ export function createService(
         policy: {
             Version: "2012-10-17",
             Statement: [
+                {
+                    Effect: "Allow",
+                    Action: [
+                        "s3:ListBucket",
+                        "s3:GetObject"
+                    ],
+                    Resource: [
+                        "arn:aws:s3:::*",
+                        "arn:aws:s3:::*/*"
+                    ]
+                },
                 {
                     Effect: "Allow",
                     Action: [
@@ -150,7 +161,7 @@ export function createService(
                         "bedrock:InvokeModel",
                         "bedrock:InvokeModelWithResponseStream"
                     ],
-                    Resource: "arn:aws:bedrock:*:*:model/meta-llama/*"
+                    Resource: "*"
                 },
             ],
         },
