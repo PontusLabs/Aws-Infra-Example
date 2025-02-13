@@ -119,11 +119,12 @@ export function createService(
                     Effect: "Allow",
                     Action: [
                         "s3:ListBucket",
-                        "s3:GetObject"
+                        "s3:GetObject",
+                        "s3:PutObject",
+                        "s3:DeleteObject"
                     ],
                     Resource: [
-                        "arn:aws:s3:::*",
-                        "arn:aws:s3:::*/*"
+                        "*"
                     ]
                 },
                 {
