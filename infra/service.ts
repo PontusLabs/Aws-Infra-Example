@@ -211,13 +211,13 @@ export function createService(
     }));
 
     const githubActionsRole = new aws.iam.Role("github-actions-role", {
-        name: `${project}-${stack}-github-actions-ecs-deploy-role`,
+        name: `$github-actions-ecs-deploy-role`,
         assumeRolePolicy: trustPolicyDocument.apply(doc => JSON.stringify(doc)),
         description: "Role for GitHub Actions to update ECS services",
     });
 
     const ecsUpdatePolicy = new aws.iam.Policy("ecs-update-policy", {
-        name: `${project}-${stack}-EcsServiceUpdatePolicy`,
+        name: `$EcsServiceUpdatePolicy`,
         description: "Allows updating ECS services",
         policy: JSON.stringify({
             Version: "2012-10-17",
