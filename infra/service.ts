@@ -204,7 +204,7 @@ export function createService(
                     "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
                 },
                 StringLike: {
-                    "token.actions.githubusercontent.com:sub": "repo:PontusLabs/Core:*",
+                    "token.actions.githubusercontent.com:sub": `repo:${cfg.require("GITHUB_REPO")}:*`,
                 },
             },
         }],
