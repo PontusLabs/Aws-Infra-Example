@@ -225,10 +225,13 @@ export function createService(
                 {
                     Effect: "Allow",
                     Action: [
+                        "ecs:ListClusters",
+                        "ecs:ListServices",
                         "ecs:UpdateService",
                         "ecs:DescribeServices",
                         "ecs:DescribeTaskDefinition",
                         "ecs:RegisterTaskDefinition",
+                        "ec2:DescribeRegions"
                     ],
                     Resource: "*",
                 },
