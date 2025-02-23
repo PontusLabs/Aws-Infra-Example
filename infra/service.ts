@@ -45,13 +45,13 @@ export function createService(
         })
         );
 
-    const appSecrets = new aws.secretsmanager.Secret("app-secrets", {
+    const appSecrets = new aws.secretsmanager.Secret(`${stack}-app-secrets`, {
         name: `${project}-${stack}-app-secrets-2`,
         description: "Pontus app secrets",
     });
 
     const secret = new aws.secretsmanager.SecretVersion(
-        "pontus-secrets-version-2",
+        `${stack}-pontus-secrets-version-2`,
         {
             secretId: appSecrets.id,
             secretString: secretString,
@@ -61,12 +61,12 @@ export function createService(
     // SSL Certificate
     const rootZone = aws.route53.getZone({ name: domain }, { async: true });
 
-    const apiCert = new aws.acm.Certificate("api-cert", {
+    const apiCert = new aws.acm.Certificate(`${stack}-api-cert`, {
         domainName: `api.${domain}`,
         validationMethod: "DNS",
     });
 
-    const apiCertValidation = new aws.route53.Record("api-cert-validation", {
+    const apiCertValidation = new aws.route53.Record(`${stack}-api-cert-validation`, {
         name: apiCert.domainValidationOptions[0].resourceRecordName,
         zoneId: rootZone.then((zone) => zone.zoneId),
         type: apiCert.domainValidationOptions[0].resourceRecordType,
@@ -75,7 +75,7 @@ export function createService(
     });
 
     const certificateValidation = new aws.acm.CertificateValidation(
-        "certificate-validation",
+        `${stack}-certificate-validation`,
         {
             certificateArn: apiCert.arn,
             validationRecordFqdns: [apiCertValidation.fqdn],
@@ -83,9 +83,9 @@ export function createService(
     );
 
     // ECS Cluster and Load Balancer
-    const cluster = new aws.ecs.Cluster("app-cluster");
+    const cluster = new aws.ecs.Cluster(`${stack}-app-cluster`);
 
-    const loadbalancer = new awsx.lb.ApplicationLoadBalancer("loadbalancer", {
+    const loadbalancer = new awsx.lb.ApplicationLoadBalancer(`${stack}-loadbalancer`, {
         securityGroups: [lbSg.id],
         subnetIds: vpc.publicSubnetIds,
         listeners: [
@@ -104,13 +104,13 @@ export function createService(
     });
 
     // IAM Roles and Policies
-    const taskRole = new aws.iam.Role("taskRole", {
+    const taskRole = new aws.iam.Role(`${stack}-taskRole`, {
         assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
             Service: "ecs-tasks.amazonaws.com",
         }),
     });
 
-    const taskRolePolicy = new aws.iam.RolePolicy("taskRolePolicy", {
+    const taskRolePolicy = new aws.iam.RolePolicy(`${stack}-taskRolePolicy`, {
         role: taskRole.id,
         policy: {
             Version: "2012-10-17",
@@ -168,18 +168,18 @@ export function createService(
         },
     });
 
-    new aws.iam.RolePolicyAttachment("taskRolePolicyAttachment", {
+    new aws.iam.RolePolicyAttachment(`${stack}-taskRolePolicyAttachment`, {
         role: taskRole.name,
         policyArn: "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
     });
 
-    const executionRole = new aws.iam.Role("executionRole", {
+    const executionRole = new aws.iam.Role(`${stack}-executionRole`, {
         assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
             Service: "ecs-tasks.amazonaws.com",
         }),
     });
 
-    new aws.iam.RolePolicyAttachment("executionRolePolicyAttachment", {
+    new aws.iam.RolePolicyAttachment(`${stack}-executionRolePolicyAttachment`, {
         role: executionRole.name,
         policyArn: "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
     });
@@ -256,7 +256,7 @@ export function createService(
 
     // ECS Service
     const service = new awsx.ecs.FargateService(
-        "app-service",
+        `${stack}-app-service`,
         {
             cluster: cluster.arn,
             desiredCount: 1,
@@ -301,7 +301,7 @@ export function createService(
     );
 
     // Route53 Record
-    const apiRecord = new aws.route53.Record("api-record", {
+    const apiRecord = new aws.route53.Record(`${stack}-api-record`, {
         zoneId: rootZone.then((zone) => zone.zoneId),
         name: `api.${domain}`,
         type: "A",
