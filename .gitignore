@@ -4,4 +4,6 @@
 Pulumi.kun-ai.yaml
 Pulumi.nu-stage.yaml
 Pulumi.stackvc.yaml
+CoreInfra/Pulumi.core.yaml
+CoreInfra/Pulumi.stackvccore.yaml
 sessionmanager-bundle
