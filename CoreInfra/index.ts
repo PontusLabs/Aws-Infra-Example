@@ -76,3 +76,6 @@ export function createCoreInfra(cfg: pulumi.Config) {
         githubActionsRole,
     };
 }
+
+const config = new pulumi.Config();
+export const infrastructure = createCoreInfra(config);
