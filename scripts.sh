@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Read the Pulumi config passphrase from .env
-PULUMI_CONFIG_PASSPHRASE=$(grep '^PULUMI_CONFIG_PASSPHRASE=' .env | cut -d '=' -f2 | sed 's/^"//;s/"$//')
+# Read the Pulumi config passphrase from .env in parent directory
+PULUMI_CONFIG_PASSPHRASE=$(grep '^PULUMI_CONFIG_PASSPHRASE=' ../.env | cut -d '=' -f2 | sed 's/^"//;s/"$//')
 
 if [ -z "$PULUMI_CONFIG_PASSPHRASE" ]; then
-    echo "Error: PULUMI_CONFIG_PASSPHRASE not found in .env file"
+    echo "Error: PULUMI_CONFIG_PASSPHRASE not found in ../.env file"
     exit 1
 fi
 
@@ -12,7 +12,7 @@ fi
 export PULUMI_CONFIG_PASSPHRASE
 
 # First, read the entire file into a variable, preserving newlines
-content=$(cat .env)
+content=$(cat ../.env)
 
 # Process each line
 echo "$content" | while IFS= read -r line

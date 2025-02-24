@@ -1,7 +1,7 @@
 /bin/
 /node_modules/
 .env
-Pulumi.kunai.yaml
-Pulumi.nubank-s.yaml
+Pulumi.kun-ai.yaml
+Pulumi.nu-stage.yaml
 Pulumi.stackvc.yaml
 sessionmanager-bundle
