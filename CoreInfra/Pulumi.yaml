@@ -1,0 +1,10 @@
+name: PulumiCoreInfra
+runtime:
+  name: nodejs
+  options:
+    packagemanager: npm
+description: Pontus Core Infra
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-typescript

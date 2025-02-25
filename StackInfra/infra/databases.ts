@@ -1,14 +1,13 @@
-
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
 import * as pulumi from "@pulumi/pulumi";
 
 export function createDatabase(project: string, stack: string, cfg: pulumi.Config, vpc: awsx.ec2.Vpc, internalSg: aws.ec2.SecurityGroup) {
-    const redisSubnetGroup = new aws.elasticache.SubnetGroup("redis-subnet-group", {
+    const redisSubnetGroup = new aws.elasticache.SubnetGroup(`${stack}-redis-subnet-group`, {
         subnetIds: vpc.privateSubnetIds,
     });
 
-    const redisCluster = new aws.elasticache.Cluster("redis-cluster", {
+    const redisCluster = new aws.elasticache.Cluster(`${stack}-redis-cluster`, {
         engine: "redis",
         nodeType: "cache.t3.micro",
         numCacheNodes: 1,
@@ -18,11 +17,11 @@ export function createDatabase(project: string, stack: string, cfg: pulumi.Confi
     });
 
     // RDS PostgreSQL instance
-    const dbSubnetGroup = new aws.rds.SubnetGroup("db-subnet-group", {
+    const dbSubnetGroup = new aws.rds.SubnetGroup(`${stack}-db-subnet-group`, {
         subnetIds: vpc.privateSubnetIds,
     });
 
-    const dbInstance = new aws.rds.Instance("postgres-db", {
+    const dbInstance = new aws.rds.Instance(`${stack}-postgres-db`, {
         engine: "postgres",
         instanceClass: "db.t3.micro",
         allocatedStorage: 20,
@@ -35,7 +34,7 @@ export function createDatabase(project: string, stack: string, cfg: pulumi.Confi
     });
 
     // Amazon MQ (RabbitMQ) broker
-    const rabbitMqBroker = new aws.mq.Broker("rabbitmq-broker", {
+    const rabbitMqBroker = new aws.mq.Broker(`${stack}-rabbitmq-broker`, {
         brokerName: `${project}-${stack}-rabbitmq-broker`,
         engineType: "RabbitMQ",
         engineVersion: "3.12.13",

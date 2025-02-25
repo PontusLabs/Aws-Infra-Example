@@ -1,7 +1,9 @@
 /bin/
 /node_modules/
 .env
-Pulumi.dev.yaml
-Pulumi.prod.yaml
-Pulumi.stackvcdev.yaml
+Pulumi.kun-ai.yaml
+Pulumi.nu-stage.yaml
+Pulumi.stackvc.yaml
+CoreInfra/Pulumi.core.yaml
+CoreInfra/Pulumi.stackvccore.yaml
 sessionmanager-bundle

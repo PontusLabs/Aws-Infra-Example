@@ -2,8 +2,8 @@ import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
 import * as pulumi from "@pulumi/pulumi";
 
-export function createNetworking(cfg: pulumi.Config) {
-    const vpc = new awsx.ec2.Vpc("main-vpc", {
+export function createNetworking(cfg: pulumi.Config, stack: string) {
+    const vpc = new awsx.ec2.Vpc(`${stack}-main-vpc`, {
         cidrBlock: "10.0.0.0/16",
         numberOfAvailabilityZones: 2,
         natGateways: { strategy: "Single" },
@@ -12,17 +12,17 @@ export function createNetworking(cfg: pulumi.Config) {
     });
 
     // VPC DNS settings
-    const vpcDnsSettings = new aws.ec2.VpcDhcpOptions("vpc-dns-settings", {
+    const vpcDnsSettings = new aws.ec2.VpcDhcpOptions(`${stack}-vpc-dns-settings`, {
         domainNameServers: ["AmazonProvidedDNS"],
     });
 
-    new aws.ec2.VpcDhcpOptionsAssociation("vpc-dns-association", {
+    new aws.ec2.VpcDhcpOptionsAssociation(`${stack}-vpc-dns-association`, {
         vpcId: vpc.vpcId,
         dhcpOptionsId: vpcDnsSettings.id,
     });
 
     // Security Groups
-    const lbSg = new aws.ec2.SecurityGroup("lb-sg", {
+    const lbSg = new aws.ec2.SecurityGroup(`${stack}-lb-sg`, {
         vpcId: vpc.vpcId,
         ingress: [
             { protocol: "tcp", fromPort: 80, toPort: 80, cidrBlocks: ["0.0.0.0/0"] },
@@ -33,7 +33,7 @@ export function createNetworking(cfg: pulumi.Config) {
         ],
     });
 
-    const internalSg = new aws.ec2.SecurityGroup("internal-sg", {
+    const internalSg = new aws.ec2.SecurityGroup(`${stack}-internal-sg`, {
         vpcId: vpc.vpcId,
         ingress: [
             { protocol: "-1", fromPort: 0, toPort: 0, self: true },
@@ -48,24 +48,8 @@ export function createNetworking(cfg: pulumi.Config) {
     const region = cfg.require("AWS_REGION");
 
     // VPC Endpoints
-    const bedrockEndpointPolicy = {
-        Version: "2012-10-17",
-        Statement: [
-            {
-                Sid: "AllowBedrockAccess",
-                Effect: "Allow",
-                Principal: "*",
-                Action: [
-                    "bedrock:InvokeModel",
-                    "bedrock:InvokeModelWithResponseStream"
-                ],
-                Resource: "arn:aws:bedrock:*:*:model/*"
-            }
-        ]
-    };
-
     const vpcEndpoints = [
-        new aws.ec2.VpcEndpoint("ssm-endpoint", {
+        new aws.ec2.VpcEndpoint(`${stack}-ssm-endpoint`, {
             vpcId: vpc.vpcId,
             serviceName: `com.amazonaws.${region}.ssm`,
             vpcEndpointType: "Interface",
@@ -73,7 +57,7 @@ export function createNetworking(cfg: pulumi.Config) {
             subnetIds: vpc.privateSubnetIds,
             securityGroupIds: [internalSg.id],
         }),
-        new aws.ec2.VpcEndpoint("ssmmessages-endpoint", {
+        new aws.ec2.VpcEndpoint(`${stack}-ssmmessages-endpoint`, {
             vpcId: vpc.vpcId,
             serviceName: `com.amazonaws.${region}.ssmmessages`,
             vpcEndpointType: "Interface",
@@ -81,7 +65,7 @@ export function createNetworking(cfg: pulumi.Config) {
             subnetIds: vpc.privateSubnetIds,
             securityGroupIds: [internalSg.id],
         }),
-        new aws.ec2.VpcEndpoint("ec2messages-endpoint", {
+        new aws.ec2.VpcEndpoint(`${stack}-ec2messages-endpoint`, {
             vpcId: vpc.vpcId,
             serviceName: `com.amazonaws.${region}.ec2messages`,
             vpcEndpointType: "Interface",
@@ -89,14 +73,13 @@ export function createNetworking(cfg: pulumi.Config) {
             subnetIds: vpc.privateSubnetIds,
             securityGroupIds: [internalSg.id],
         }),
-        new aws.ec2.VpcEndpoint("bedrock-endpoint", {
+        new aws.ec2.VpcEndpoint(`${stack}-bedrock-endpoint`, {
             vpcId: vpc.vpcId,
             serviceName: `com.amazonaws.${region}.bedrock-runtime`,
             vpcEndpointType: "Interface",
             privateDnsEnabled: true,
             subnetIds: vpc.privateSubnetIds,
             securityGroupIds: [internalSg.id],
-            policy: JSON.stringify(bedrockEndpointPolicy),
         }),
     ];
     return { vpc, internalSg, lbSg, vpcEndpoints };
