@@ -153,6 +153,7 @@ export function createService(
                     Action: [
                         "secretsmanager:GetSecretValue",
                         "secretsmanager:DescribeSecret",
+                        "secretsmanager:PutSecretValue",
                     ],
                     Resource: appSecrets.arn,
                 },
